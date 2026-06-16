@@ -19,23 +19,16 @@ function fmtDate(s: string) {
   if (!s) return "—";
   try { return new Date(s).toLocaleDateString("pt-BR"); } catch { return s; }
 }
+
 function badge(prob: number) {
   if (prob >= 70) return { label: "Quente", bg: "rgba(34,197,94,.15)", color: "#22c55e" };
-  if (prob >= 40) return { label: "Médio", bg: "rgba(249,115,22,.15)", color: "#f97316" };
-  return { label: "Frio", bg: "rgba(239,68,68,.15)", color: "#ef4444" };
+  if (prob >= 40) return { label: "Médio",  bg: "rgba(249,115,22,.15)", color: "#f97316" };
+  return               { label: "Frio",   bg: "rgba(239,68,68,.15)",  color: "#ef4444" };
 }
 
 const card = { background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, padding: "20px 24px" };
-const cardTitle = { fontSize: 13, fontWeight: 600 as const, color: "var(--text)", marginBottom: 4 };
+const cardTitle = { fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 };
 const cardSub = { fontSize: 11, color: "var(--text-muted)", marginBottom: 18 };
-
-interface OpenDeal {
-  id: string;
-  name: string;
-  amount: number;
-  closeDate: string;
-  probability: number;
-}
 
 export default async function DashboardPage() {
   const d = await getData();
@@ -48,7 +41,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(155px, 1fr))", gap: 12, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
         <KpiCard label="Total de deals" value={d.total} sub="no período" />
         <KpiCard label="Ganhos" value={d.won} sub={fmtBRL(d.wonAmount)} color="var(--green)" />
         <KpiCard label="Conversão" value={d.conversionRate + "%"} sub="ganhos / total" color="var(--accent)" />
@@ -57,7 +50,7 @@ export default async function DashboardPage() {
         <KpiCard label="Ticket médio" value={fmtBRL(d.avgDealSize)} sub="por deal" color="var(--amber)" />
       </div>
 
-      {/* Row 1 */}
+      {/* Row 1: Monthly bar + Status donut */}
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginBottom: 16 }}>
         <div style={card}>
           <div style={cardTitle}>Volume por mês</div>
@@ -68,8 +61,8 @@ export default async function DashboardPage() {
           <div style={cardTitle}>Distribuição de status</div>
           <div style={cardSub}>Ganhos · Perdidos · Em aberto</div>
           <StatusDonut won={d.won} lost={d.lost} open={d.open} />
-          <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
-            {[["Ganhos", "#22c55e", d.won], ["Perdidos", "#ef4444", d.lost], ["Em aberto", "#f97316", d.open]].map(([l, c, v]) => (
+          <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 8 }}>
+            {[["Ganhos","var(--green)",d.won],["Perdidos","var(--red)",d.lost],["Em aberto","var(--orange)",d.open]].map(([l,c,v]) => (
               <span key={String(l)} style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: 2, background: String(c), display: "inline-block" }} />
                 {l}: {v}
@@ -79,7 +72,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 2 */}
+      {/* Row 2: Revenue area + Stage funnel */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
         <div style={card}>
           <div style={cardTitle}>Receita por mês</div>
@@ -93,8 +86,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 3 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      {/* Row 3: Loss reasons + Top deals */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
         <div style={card}>
           <div style={cardTitle}>Top motivos de perda</div>
           <div style={cardSub}>Frequência dos motivos registrados</div>
@@ -107,13 +100,13 @@ export default async function DashboardPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
               <thead>
                 <tr>
-                  {["Deal", "Valor", "Fecha", "Prob."].map(h => (
+                  {["Deal","Valor","Fecha","Prob."].map(h => (
                     <th key={h} style={{ textAlign: "left", padding: "8px 10px", fontSize: 11, color: "var(--text-muted)", borderBottom: "1px solid var(--border)", fontWeight: 500 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {(d.openDeals as OpenDeal[]).slice(0, 8).map((deal) => {
+                {d.openDeals.slice(0, 8).map((deal: { id: string; name: string; amount: number; closeDate: string; probability: number }) => {
                   const b = badge(deal.probability);
                   return (
                     <tr key={deal.id}>

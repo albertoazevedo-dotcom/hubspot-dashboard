@@ -3,24 +3,17 @@ import { useState, useEffect, useCallback } from "react";
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 interface Deal {
-  id: string;
-  name: string;
-  amount: number;
-  stage: string;
-  closeDate: string;
-  probability: number;
-  pipeline: string;
+  id: string; name: string; amount: number; stage: string;
+  closeDate: string; probability: number; pipeline: string;
 }
 
 function fmtBRL(v: number) { return v ? "R$ " + Math.round(v).toLocaleString("pt-BR") : "—"; }
-function fmtDate(s: string) {
-  if (!s) return "—";
-  try { return new Date(s).toLocaleDateString("pt-BR"); } catch { return s; }
-}
+function fmtDate(s: string) { if (!s) return "—"; try { return new Date(s).toLocaleDateString("pt-BR"); } catch { return s; } }
+
 function badge(prob: number) {
   if (prob >= 70) return { label: "Quente", bg: "rgba(34,197,94,.15)", color: "#22c55e" };
-  if (prob >= 40) return { label: "Médio", bg: "rgba(249,115,22,.15)", color: "#f97316" };
-  return { label: "Frio", bg: "rgba(239,68,68,.15)", color: "#ef4444" };
+  if (prob >= 40) return { label: "Médio",  bg: "rgba(249,115,22,.15)", color: "#f97316" };
+  return               { label: "Frio",   bg: "rgba(239,68,68,.15)",  color: "#ef4444" };
 }
 
 type SortKey = keyof Deal;
@@ -41,8 +34,7 @@ export default function PipelinePage() {
   const filtered = deals
     .filter(d => d.name.toLowerCase().includes(search.toLowerCase()) || d.stage.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      const av = a[sort.key] ?? 0;
-      const bv = b[sort.key] ?? 0;
+      const av = a[sort.key] ?? 0, bv = b[sort.key] ?? 0;
       return sort.dir === "asc" ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
     });
 
@@ -55,7 +47,11 @@ export default function PipelinePage() {
     return sort.dir === "asc" ? <ArrowUp size={12} color="var(--accent)" /> : <ArrowDown size={12} color="var(--accent)" />;
   }
 
-  const thStyle = { textAlign: "left" as const, padding: "10px 12px", fontSize: 11, color: "var(--text-muted)", borderBottom: "1px solid var(--border)", fontWeight: 500, cursor: "pointer", userSelect: "none" as const, whiteSpace: "nowrap" as const };
+  const th = (label: string, key: SortKey) => (
+    <th key={key} onClick={() => toggleSort(key)} style={{ textAlign: "left", padding: "10px 12px", fontSize: 11, color: "var(--text-muted)", borderBottom: "1px solid var(--border)", fontWeight: 500, cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>{label} <SortIcon k={key} /></span>
+    </th>
+  );
 
   return (
     <div>
@@ -65,11 +61,10 @@ export default function PipelinePage() {
       </div>
 
       <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
-        <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 10 }}>
           <Search size={14} color="var(--text-muted)" />
           <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+            value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Buscar deal ou estágio..."
             style={{ background: "transparent", border: "none", outline: "none", color: "var(--text)", fontSize: 13, flex: 1 }}
           />
@@ -79,13 +74,13 @@ export default function PipelinePage() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr>
-                <th onClick={() => toggleSort("name")} style={thStyle}><span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Deal <SortIcon k="name" /></span></th>
-                <th onClick={() => toggleSort("stage")} style={thStyle}><span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Estágio <SortIcon k="stage" /></span></th>
-                <th onClick={() => toggleSort("amount")} style={thStyle}><span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Valor <SortIcon k="amount" /></span></th>
-                <th onClick={() => toggleSort("closeDate")} style={thStyle}><span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Fechamento <SortIcon k="closeDate" /></span></th>
-                <th onClick={() => toggleSort("probability")} style={thStyle}><span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Prob. <SortIcon k="probability" /></span></th>
-                <th style={{ ...thStyle, cursor: "default" }}>Status</th>
-                <th onClick={() => toggleSort("pipeline")} style={thStyle}><span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>Pipeline <SortIcon k="pipeline" /></span></th>
+                {th("Deal", "name")}
+                {th("Estágio", "stage")}
+                {th("Valor", "amount")}
+                {th("Fechamento", "closeDate")}
+                {th("Prob.", "probability")}
+                <th style={{ padding: "10px 12px", fontSize: 11, color: "var(--text-muted)", borderBottom: "1px solid var(--border)", fontWeight: 500 }}>Status</th>
+                {th("Pipeline", "pipeline")}
               </tr>
             </thead>
             <tbody>
@@ -93,10 +88,7 @@ export default function PipelinePage() {
                 const b = badge(d.probability);
                 const overdue = d.closeDate && new Date(d.closeDate) < new Date();
                 return (
-                  <tr key={d.id}
-                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,.03)")}
-                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                  >
+                  <tr key={d.id} style={{ transition: "background .1s" }} onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,.03)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                     <td style={{ padding: "12px", borderBottom: "1px solid var(--border)", fontWeight: 500, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.name}</td>
                     <td style={{ padding: "12px", borderBottom: "1px solid var(--border)", color: "var(--text-muted)" }}>{d.stage}</td>
                     <td style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>{fmtBRL(d.amount)}</td>

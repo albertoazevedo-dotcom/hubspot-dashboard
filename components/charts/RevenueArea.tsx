@@ -15,7 +15,7 @@ export default function RevenueArea({ data }: Props) {
     <ResponsiveContainer width="100%" height={200}>
       <AreaChart data={chartData}>
         <defs>
-          <linearGradient id="gradReceita" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="colorReceita" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
             <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
           </linearGradient>
@@ -24,7 +24,7 @@ export default function RevenueArea({ data }: Props) {
         <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} />
         <YAxis tickFormatter={fmtBRL} tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} />
         <Tooltip formatter={(v: number) => fmtBRL(v)} contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)", fontSize: 12 }} />
-        <Area type="monotone" dataKey="Receita" stroke="#6366f1" fill="url(#gradReceita)" strokeWidth={2} />
+        <Area type="monotone" dataKey="Receita" stroke="#6366f1" fill="url(#colorReceita)" strokeWidth={2} />
       </AreaChart>
     </ResponsiveContainer>
   );

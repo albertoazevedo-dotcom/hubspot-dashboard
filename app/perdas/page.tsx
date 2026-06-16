@@ -23,13 +23,14 @@ export default async function PerdasPage() {
         <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Por que os deals foram perdidos?</p>
       </div>
 
+      {/* Insight card */}
       {top && (
         <div style={{ ...card, marginBottom: 16, background: "rgba(239,68,68,.08)", borderColor: "rgba(239,68,68,.3)", display: "flex", alignItems: "flex-start", gap: 16 }}>
           <div style={{ fontSize: 28 }}>🔍</div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Principal motivo de perda</div>
             <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-              <strong style={{ color: "var(--red)" }}>&ldquo;{top[0]}&rdquo;</strong> representa{" "}
+              <strong style={{ color: "var(--red)" }}>"{top[0]}"</strong> representa{" "}
               <strong style={{ color: "var(--text)" }}>{topPct}% ({top[1]} de {total})</strong> dos deals perdidos.
               {topPct > 30 ? " Ação prioritária recomendada." : ""}
             </div>
@@ -50,12 +51,13 @@ export default async function PerdasPage() {
         </div>
       </div>
 
+      {/* Detail table */}
       <div style={{ ...card, marginTop: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 18 }}>Detalhamento por motivo</div>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr>
-              {["#", "Motivo", "Deals", "% do total", "Barra"].map(h => (
+              {["#","Motivo","Deals","% do total","Barra"].map(h => (
                 <th key={h} style={{ textAlign: "left", padding: "8px 12px", fontSize: 11, color: "var(--text-muted)", borderBottom: "1px solid var(--border)", fontWeight: 500 }}>{h}</th>
               ))}
             </tr>
