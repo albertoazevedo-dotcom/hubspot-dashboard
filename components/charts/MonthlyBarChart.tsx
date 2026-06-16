@@ -20,9 +20,9 @@ export default function MonthlyBarChart({ data }: Props) {
         <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} />
         <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)", fontSize: 12 }} />
         <Legend wrapperStyle={{ fontSize: 12, color: "var(--text-muted)" }} />
-        <Bar dataKey="Ganhos" stackId="a" fill="#22c55e" />
-        <Bar dataKey="Perdidos" stackId="a" fill="#ef4444" />
-        <Bar dataKey="Em aberto" stackId="a" fill="#f97316" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="Ganhos" stackId="a" fill="var(--green)" radius={[0,0,0,0]} />
+        <Bar dataKey="Perdidos" stackId="a" fill="var(--red)" />
+        <Bar dataKey="Em aberto" stackId="a" fill="var(--orange)" radius={[4,4,0,0]} />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -1,13 +1,13 @@
 "use client";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-interface Props { won: number; lost: number; open: number }
+interface Props { won: number; lost: number; open: number; }
 
 export default function StatusDonut({ won, lost, open }: Props) {
   const data = [
-    { name: "Ganhos", value: won, color: "#22c55e" },
-    { name: "Perdidos", value: lost, color: "#ef4444" },
-    { name: "Em aberto", value: open, color: "#f97316" },
+    { name: "Ganhos", value: won, color: "var(--green)" },
+    { name: "Perdidos", value: lost, color: "var(--red)" },
+    { name: "Em aberto", value: open, color: "var(--orange)" },
   ];
   return (
     <ResponsiveContainer width="100%" height={200}>
