@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { clearTokens } from "@/lib/session";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await clearTokens();
-  return NextResponse.redirect(new URL("/", process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"));
+  const base = process.env.NEXT_PUBLIC_BASE_URL || req.nextUrl.origin;
+  return NextResponse.redirect(new URL("/", base));
 }
