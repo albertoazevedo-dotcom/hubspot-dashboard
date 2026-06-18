@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import FilterBar, { type Filters } from "@/components/FilterBar";
 
 interface Deal {
   id: string; name: string; amount: number; stage: string;
@@ -20,16 +21,27 @@ type SortKey = keyof Deal;
 
 export default function PipelinePage() {
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "probability", dir: "desc" });
 
-  const load = useCallback(async () => {
-    const r = await fetch("/api/deals");
-    const d = await r.json();
-    setDeals(d.openDeals || []);
+  const load = useCallback(async (f: Filters) => {
+    setLoading(true);
+    try {
+      const p = new URLSearchParams({ start: f.start, end: f.end, pipeline: f.pipeline });
+      const r = await fetch("/api/deals?" + p);
+      const d = await r.json();
+      setDeals(d.openDeals || []);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // fallback load on mount
+  useEffect(() => {
+    const end = new Date().toISOString().slice(0, 10);
+    const start = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
+    load({ start, end, pipeline: "" });
+  }, [load]);
 
   const filtered = deals
     .filter(d => d.name.toLowerCase().includes(search.toLowerCase()) || d.stage.toLowerCase().includes(search.toLowerCase()))
@@ -55,10 +67,12 @@ export default function PipelinePage() {
 
   return (
     <div>
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700 }}>Pipeline</h1>
         <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Deals em aberto com probabilidade de fechamento</p>
       </div>
+
+      <FilterBar onChange={load} loading={loading} />
 
       <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
         <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 10 }}>
@@ -102,7 +116,9 @@ export default function PipelinePage() {
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={7} style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>Nenhum deal encontrado</td></tr>
+                <tr><td colSpan={7} style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+                  {loading ? "Carregando..." : "Nenhum deal encontrado"}
+                </td></tr>
               )}
             </tbody>
           </table>
